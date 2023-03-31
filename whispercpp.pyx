@@ -78,8 +78,8 @@ cdef whisper_full_params default_params() nogil:
     return params
 
 
-class Whisper:
-    def whisper_context * ctx
+cdef class Whisper:
+    cdef whisper_context * ctx
     cdef whisper_full_params params
 
     def __init__(self, model=DEFAULT_MODEL, pb=None, language=None, n_threads=None):

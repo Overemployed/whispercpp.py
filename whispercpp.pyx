@@ -86,7 +86,7 @@ cdef class Whisper:
         model_fullname = f'ggml-{model}.bin'
         download_model(model_fullname)
         model_path = Path(MODELS_DIR).joinpath(model_fullname)
-        cdef bytes model_b = str(model_path)
+        cdef bytes model_b = str(model_path).encode('utf-8')
         self.ctx = whisper_init(model_b)
         self.params = default_params()
 

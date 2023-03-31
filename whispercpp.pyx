@@ -86,13 +86,13 @@ cdef class Whisper:
         model_fullname = f'ggml-{model}.bin'
         download_model(model_fullname)
         model_path = Path(MODELS_DIR).joinpath(model_fullname)
-        cdef bytes model_b = str(model_path).encode('utf8')
+        cdef bytes model_b = str(model_path)
         self.ctx = whisper_init(model_b)
         self.params = default_params()
 
         # Update parameters
         if language is not None:
-            self.params.language = language.encode('utf-8')
+            self.params.language = language
         if n_threads is not None:
             self.params.n_threads = n_threads
 

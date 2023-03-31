@@ -68,13 +68,15 @@ cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] load_audio(bytes file, int sr 
 
     return frames
 
-cdef whisper_full_params default_params() nogil:
+cdef whisper_full_params default_params(language) nogil:
     cdef whisper_full_params params = whisper_full_default_params(
         whisper_sampling_strategy.WHISPER_SAMPLING_GREEDY
     )
     params.print_realtime = True
     params.print_progress = True
     params.translate = False
+    params.language = language
+    params.n_threads = N_THREADS
     return params
 
 
@@ -88,11 +90,12 @@ cdef class Whisper:
         model_path = Path(MODELS_DIR).joinpath(model_fullname)
         cdef bytes model_b = str(model_path).encode('utf-8')
         self.ctx = whisper_init(model_b)
-        self.params = default_params()
 
-        # Update parameters
-        if language is not None:
-            self.params.language = language
+        if language is None:
+            language = LANGUAGE
+
+        self.params = default_params(language.encode('utf-8'))
+
         if n_threads is not None:
             self.params.n_threads = n_threads
 

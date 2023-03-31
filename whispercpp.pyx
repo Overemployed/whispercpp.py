@@ -72,11 +72,12 @@ cdef whisper_full_params default_params() nogil:
     cdef whisper_full_params params = whisper_full_default_params(
         whisper_sampling_strategy.WHISPER_SAMPLING_GREEDY
     )
-    params.print_realtime = True
+    params.print_realtime = False
     params.print_progress = False
     params.translate = False
     params.language = <const char *> LANGUAGE
     params.speed_up = True
+    params.max_tokens = 32
     n_threads = N_THREADS
     return params
 

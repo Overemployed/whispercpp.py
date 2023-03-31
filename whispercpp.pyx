@@ -15,7 +15,7 @@ cimport numpy as cnp
 
 cdef int SAMPLE_RATE = 16000
 cdef char* TEST_FILE = 'test.wav'
-cdef char* DEFAULT_MODEL = 'base'
+cdef char* DEFAULT_MODEL = 'tiny'
 cdef char* LANGUAGE = b'en'
 cdef int N_THREADS = os.cpu_count()
 
@@ -68,15 +68,15 @@ cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] load_audio(bytes file, int sr 
 
     return frames
 
-cdef whisper_full_params default_params(language):
+cdef whisper_full_params default_params() nogil:
     cdef whisper_full_params params = whisper_full_default_params(
         whisper_sampling_strategy.WHISPER_SAMPLING_GREEDY
     )
     params.print_realtime = True
-    params.print_progress = True
+    params.print_progress = False
     params.translate = False
-    params.language = language
-    params.n_threads = N_THREADS
+    params.language = <const char *> LANGUAGE
+    n_threads = N_THREADS
     return params
 
 
@@ -84,21 +84,13 @@ cdef class Whisper:
     cdef whisper_context * ctx
     cdef whisper_full_params params
 
-    def __init__(self, model=DEFAULT_MODEL, pb=None, language=None, n_threads=None):
+    def __init__(self, model=DEFAULT_MODEL, pb=None):
         model_fullname = f'ggml-{model}.bin'
         download_model(model_fullname)
         model_path = Path(MODELS_DIR).joinpath(model_fullname)
-        cdef bytes model_b = str(model_path).encode('utf-8')
+        cdef bytes model_b = str(model_path).encode('utf8')
         self.ctx = whisper_init(model_b)
-
-        if language is None:
-            language = LANGUAGE
-
-        self.params = default_params(language.encode('utf-8'))
-
-        if n_threads is not None:
-            self.params.n_threads = n_threads
-
+        self.params = default_params()
         whisper_print_system_info()
 
     def __dealloc__(self):
@@ -119,5 +111,4 @@ cdef class Whisper:
         return [
             whisper_full_get_segment_text(self.ctx, i).decode() for i in range(n_segments)
         ]
-
 

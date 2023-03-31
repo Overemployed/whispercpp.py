@@ -99,14 +99,14 @@ cdef class Whisper:
         whisper_free(self.ctx)
 
     def transcribe(self, filename=TEST_FILE):
-        print("Loading data..")
+        #print("Loading data..")
         cdef cnp.ndarray[cnp.float32_t, ndim=1, mode="c"] frames = load_audio(<bytes>filename)
 
-        print("Transcribing..")
+        #print("Transcribing..")
         return whisper_full(self.ctx, self.params, &frames[0], len(frames))
     
     def extract_text(self, int res):
-        print("Extracting text...")
+        #print("Extracting text...")
         if res != 0:
             raise RuntimeError
         cdef int n_segments = whisper_full_n_segments(self.ctx)
